@@ -15,7 +15,6 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #FDFCFA;
-            /* iOSのノッチ部分に対応 */
             padding-top: env(safe-area-inset-top);
             -webkit-tap-highlight-color: transparent;
         }
@@ -35,29 +34,18 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
 <body>
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
     <script>
-      // Service Worker registration with enhanced origin handling
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          // Determine the correct path relative to the current page
-          const swPath = './sw.js';
-          
-          navigator.serviceWorker.register(swPath, { scope: './' })
-            .then(registration => {
-              console.log('SW registered with scope:', registration.scope);
-            })
-            .catch(error => {
-              // Fail gracefully if SW registration is blocked by environment
-              console.warn('Service Worker registration skipped or failed:', error.message);
-            });
+          navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('SW registered'))
+            .catch(err => console.warn('SW failed', err));
         });
       }
     </script>
-<script type="module" src="/index.tsx"></script>
 </body>
 </html>
