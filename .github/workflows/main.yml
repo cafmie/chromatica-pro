@@ -22,13 +22,15 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm install
+        working-directory: ./chromatica-local-pro
       - name: Build
         # package.json の scripts にある build を直接実行します
         run: npm run build
+        working-directory: ./chromatica-local-pro
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: ./chromatica-local-pro/dist
 
   deploy:
     environment:
