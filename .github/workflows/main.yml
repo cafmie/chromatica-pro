@@ -20,13 +20,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          # cache: 'npm' を削除しました（lockファイルがないため）
       - name: Install dependencies
-        # lockファイルがなくてもエラーにならないようにインストール
         run: npm install
       - name: Build
-        # Vite のビルドコマンドを実行
-        run: npx vite build
+        # package.json の scripts にある build を直接実行します
+        run: npm run build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
