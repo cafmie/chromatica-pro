@@ -132,18 +132,15 @@ const App: React.FC = () => {
     updateCustomColor(hue, s, v);
   };
 
-  const handlePickDragStart = (e: any) => {
+  const handlePickDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
     setIsDraggingPick(true);
   };
 
-  const handlePickDrag = (e: any) => {
-    if (!isDraggingPick && e.type !== 'click') return;
-    sampleColorFromSource(e);
-  };
-
-  const handlePickDragEnd = () => {
-    setIsDraggingPick(false);
+  const handleCanvasInteraction = (e: React.MouseEvent | React.TouchEvent, isDragging: boolean = false) => {
+    if (isDragging || (e as React.MouseEvent).buttons === 1) {
+      sampleColorFromSource(e);
+    }
   };
 
   useEffect(() => {
@@ -258,27 +255,9 @@ const App: React.FC = () => {
               <div className="relative rounded-[2rem] overflow-hidden border border-stone-100 shadow-inner group">
                 <canvas 
                   ref={sourceCanvasRef} 
-                  onMouseDown={(e) => {
-                    if (isDraggingPick) {
-                      handlePickDrag(e);
-                    } else {
-                      sampleColorFromSource(e);
-                    }
-                  }}
-                  onMouseMove={(e) => {
-                    if (e.buttons === 1 && !isDraggingPick) {
-                      sampleColorFromSource(e);
-                    } else if (isDraggingPick) {
-                      handlePickDrag(e);
-                    }
-                  }}
-                  onTouchMove={(e) => {
-                    if (isDraggingPick) {
-                      handlePickDrag(e);
-                    } else {
-                      sampleColorFromSource(e);
-                    }
-                  }}
+                  onMouseDown={(e) => handleCanvasInteraction(e, isDraggingPick)}
+                  onMouseMove={(e) => handleCanvasInteraction(e, isDraggingPick)}
+                  onTouchMove={(e) => handleCanvasInteraction(e, isDraggingPick)}
                   className="w-full h-auto cursor-crosshair touch-none" 
                 />
                 {/* Pick marker */}
