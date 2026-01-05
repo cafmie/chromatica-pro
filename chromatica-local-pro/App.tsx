@@ -232,16 +232,11 @@ const App: React.FC = () => {
                 </div>
                 <div className="flex-1 bg-white/5 rounded-2xl p-4 border border-white/10 flex flex-col justify-center">
                    <p className="text-[9px] text-stone-500 font-bold uppercase mb-2">Colorist Tip</p>
-                   <p className="text-[11px] text-stone-200 leading-relaxed line-clamp-4">
+                   <p className="text-[11px] text-stone-200 leading-relaxed">
                      {advice?.split('\n\n')[1] || "解析中..."}
                    </p>
                 </div>
               </div>
-
-              <button className="w-full bg-white text-stone-900 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-transform">
-                詳細データを確認
-                <Sparkles className="w-4 h-4 text-amber-500" />
-              </button>
             </div>
           </section>
         )}
