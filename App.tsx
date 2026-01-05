@@ -73,11 +73,11 @@ const App: React.FC = () => {
     }
   };
 
-  const sampleColorFromSource = (e: any) => {
+  const sampleColorFromSource = (e: React.MouseEvent | React.TouchEvent) => {
     if (!sourceCanvasRef.current || !image) return;
     const canvas = sourceCanvasRef.current;
     const rect = canvas.getBoundingClientRect();
-    const touch = e.touches ? e.touches[0] : e;
+    const touch = 'touches' in e ? e.touches[0] : e;
     const x = (touch.clientX - rect.left) * (canvas.width / rect.width);
     const y = (touch.clientY - rect.top) * (canvas.height / rect.height);
     
@@ -135,12 +135,6 @@ const App: React.FC = () => {
   const handlePickDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
     setIsDraggingPick(true);
-  };
-
-  const handleCanvasInteraction = (e: React.MouseEvent | React.TouchEvent, isDragging: boolean = false) => {
-    if (isDragging || (e as React.MouseEvent).buttons === 1) {
-      sampleColorFromSource(e);
-    }
   };
 
   useEffect(() => {
@@ -255,9 +249,13 @@ const App: React.FC = () => {
               <div className="relative rounded-[2rem] overflow-hidden border border-stone-100 shadow-inner group">
                 <canvas 
                   ref={sourceCanvasRef} 
-                  onMouseDown={(e) => handleCanvasInteraction(e, isDraggingPick)}
-                  onMouseMove={(e) => handleCanvasInteraction(e, isDraggingPick)}
-                  onTouchMove={(e) => handleCanvasInteraction(e, isDraggingPick)}
+                  onMouseDown={sampleColorFromSource}
+                  onMouseMove={(e) => {
+                    if (e.buttons === 1) {
+                      sampleColorFromSource(e);
+                    }
+                  }}
+                  onTouchMove={sampleColorFromSource}
                   className="w-full h-auto cursor-crosshair touch-none" 
                 />
                 {/* Pick marker */}
