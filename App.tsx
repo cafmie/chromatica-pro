@@ -16,6 +16,7 @@ const App: React.FC = () => {
   const [isSampling, setIsSampling] = useState(false);
   const [isSamplingSource, setIsSamplingSource] = useState(false);
   const [pickerMode, setPickerMode] = useState<'presets' | 'custom' | 'image'>('presets');
+  const [pickPosition, setPickPosition] = useState<{ x: number; y: number } | null>(null);
   
   // Custom Color Picker States (HSV)
   const [hue, setHue] = useState(0.05);
@@ -42,6 +43,8 @@ const App: React.FC = () => {
             const result = await analyzeSkinToneLocal(img);
             setAnalysis(result);
             setIsSamplingSource(true); // 画像アップロード後は自動的にサンプリングモードをオンに
+            // 画像の中央にピックを配置
+            setPickPosition({ x: 0.5, y: 0.5 });
           } catch (err) {
             console.error(err);
           } finally {
@@ -69,13 +72,20 @@ const App: React.FC = () => {
     }
   };
 
-  const sampleColorFromSource = (e: any) => {
+  const sampleColorFromSource = (e: React.MouseEvent | React.TouchEvent) => {
     if (!sourceCanvasRef.current || !image) return;
     const canvas = sourceCanvasRef.current;
     const rect = canvas.getBoundingClientRect();
-    const touch = e.touches ? e.touches[0] : e;
+    const touch = 'touches' in e ? e.touches[0] : e;
     const x = (touch.clientX - rect.left) * (canvas.width / rect.width);
     const y = (touch.clientY - rect.top) * (canvas.height / rect.height);
+    
+    // ピック位置を更新（正規化された座標として保存）
+    setPickPosition({ 
+      x: x / canvas.width, 
+      y: y / canvas.height 
+    });
+    
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     if (ctx) {
       const pixel = ctx.getImageData(x, y, 1, 1).data;
@@ -91,11 +101,11 @@ const App: React.FC = () => {
     }
   };
 
-  const sampleColorFromCanvas = (e: any) => {
+  const sampleColorFromCanvas = (e: React.MouseEvent | React.TouchEvent) => {
     if (!canvasRef.current || !isSampling) return;
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
-    const touch = e.touches ? e.touches[0] : e;
+    const touch = 'touches' in e ? e.touches[0] : e;
     const x = (touch.clientX - rect.left) * (canvas.width / rect.width);
     const y = (touch.clientY - rect.top) * (canvas.height / rect.height);
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -213,7 +223,7 @@ const App: React.FC = () => {
                   <div className="w-6 h-6 rounded-full bg-stone-900 text-white text-[10px] flex items-center justify-center">1</div>
                   肌色の解析エリアを選択
                 </h2>
-                <button onClick={() => { setImage(null); setAnalysis(null); setIsSamplingSource(false); }} className="text-[10px] font-bold text-stone-400 flex items-center gap-1">
+                <button onClick={() => { setImage(null); setAnalysis(null); setIsSamplingSource(false); setPickPosition(null); }} className="text-[10px] font-bold text-stone-400 flex items-center gap-1">
                   <RefreshCcw className="w-3 h-3" /> 画像を変更
                 </button>
               </div>
@@ -221,13 +231,40 @@ const App: React.FC = () => {
               <div className="relative rounded-[2rem] overflow-hidden border border-stone-100 shadow-inner group">
                 <canvas 
                   ref={sourceCanvasRef} 
-                  onMouseDown={sampleColorFromSource} 
-                  onMouseMove={(e) => e.buttons === 1 && sampleColorFromSource(e)}
-                  onTouchMove={sampleColorFromSource} 
+                  onMouseDown={sampleColorFromSource}
+                  onMouseMove={(e) => {
+                    if (e.buttons === 1) {
+                      sampleColorFromSource(e);
+                    }
+                  }}
+                  onTouchMove={sampleColorFromSource}
                   className="w-full h-auto cursor-crosshair touch-none" 
                 />
+                {/* Pick marker */}
+                {pickPosition && (
+                  <div 
+                    className="absolute pointer-events-none z-10"
+                    style={{ 
+                      left: `${pickPosition.x * 100}%`, 
+                      top: `${pickPosition.y * 100}%`,
+                      transform: 'translate(-50%, -50%)'
+                    }}
+                  >
+                    <div className="relative">
+                      {/* Outer glow */}
+                      <div className="absolute inset-0 w-12 h-12 -translate-x-1/2 -translate-y-1/2 bg-white rounded-full opacity-30 animate-ping" />
+                      {/* Main pick circle */}
+                      <div className="relative w-10 h-10 -translate-x-1/2 -translate-y-1/2 bg-white rounded-full border-4 border-amber-400 shadow-lg flex items-center justify-center">
+                        <Target className="w-5 h-5 text-amber-500" />
+                      </div>
+                      {/* Crosshair lines */}
+                      <div className="absolute w-8 h-0.5 bg-amber-400 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-60" />
+                      <div className="absolute w-0.5 h-8 bg-amber-400 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-60" />
+                    </div>
+                  </div>
+                )}
                 <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md text-white text-[9px] px-3 py-1.5 rounded-full font-bold flex items-center gap-2 shadow-lg">
-                  <Target className="w-3 h-3 text-amber-400" /> 肌の一番明るい場所をタップ
+                  <Target className="w-3 h-3 text-amber-400" /> タップして位置を調整
                 </div>
               </div>
 
