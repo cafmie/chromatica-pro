@@ -17,7 +17,6 @@ const App: React.FC = () => {
   const [isSamplingSource, setIsSamplingSource] = useState(false);
   const [pickerMode, setPickerMode] = useState<'presets' | 'custom' | 'image'>('presets');
   const [pickPosition, setPickPosition] = useState<{ x: number; y: number } | null>(null);
-  const [isDraggingPick, setIsDraggingPick] = useState(false);
   
   // Custom Color Picker States (HSV)
   const [hue, setHue] = useState(0.05);
@@ -102,11 +101,11 @@ const App: React.FC = () => {
     }
   };
 
-  const sampleColorFromCanvas = (e: any) => {
+  const sampleColorFromCanvas = (e: React.MouseEvent | React.TouchEvent) => {
     if (!canvasRef.current || !isSampling) return;
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
-    const touch = e.touches ? e.touches[0] : e;
+    const touch = 'touches' in e ? e.touches[0] : e;
     const x = (touch.clientX - rect.left) * (canvas.width / rect.width);
     const y = (touch.clientY - rect.top) * (canvas.height / rect.height);
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -131,23 +130,6 @@ const App: React.FC = () => {
     const v = Math.max(0, Math.min(1, 1 - (touch.clientY - rect.top) / rect.height));
     updateCustomColor(hue, s, v);
   };
-
-  const handlePickDragStart = (e: React.MouseEvent | React.TouchEvent) => {
-    e.stopPropagation();
-    setIsDraggingPick(true);
-  };
-
-  useEffect(() => {
-    if (isDraggingPick) {
-      const handleMouseUp = () => setIsDraggingPick(false);
-      window.addEventListener('mouseup', handleMouseUp);
-      window.addEventListener('touchend', handleMouseUp);
-      return () => {
-        window.removeEventListener('mouseup', handleMouseUp);
-        window.removeEventListener('touchend', handleMouseUp);
-      };
-    }
-  }, [isDraggingPick]);
 
   useEffect(() => {
     if (image && sourceCanvasRef.current) {
@@ -261,14 +243,12 @@ const App: React.FC = () => {
                 {/* Pick marker */}
                 {pickPosition && (
                   <div 
-                    className="absolute cursor-move z-10"
+                    className="absolute pointer-events-none z-10"
                     style={{ 
                       left: `${pickPosition.x * 100}%`, 
                       top: `${pickPosition.y * 100}%`,
                       transform: 'translate(-50%, -50%)'
                     }}
-                    onMouseDown={handlePickDragStart}
-                    onTouchStart={handlePickDragStart}
                   >
                     <div className="relative">
                       {/* Outer glow */}
@@ -284,7 +264,7 @@ const App: React.FC = () => {
                   </div>
                 )}
                 <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md text-white text-[9px] px-3 py-1.5 rounded-full font-bold flex items-center gap-2 shadow-lg">
-                  <Target className="w-3 h-3 text-amber-400" /> {isDraggingPick ? 'ピックを移動中...' : 'ピックをドラッグして位置を調整'}
+                  <Target className="w-3 h-3 text-amber-400" /> タップして位置を調整
                 </div>
               </div>
 
