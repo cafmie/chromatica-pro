@@ -1,0 +1,7 @@
+{
+  "name": "Chromatica Local Pro",
+  "description": "API不要。色彩工学アルゴリズムに基づき、画像から肌色を直接解析。目標色を再現するための最適顔料をリアルタイムでシミュレーションします。",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

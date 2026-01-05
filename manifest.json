@@ -1,0 +1,18 @@
+
+{
+  "name": "Chromatica Color Pro",
+  "short_name": "Chromatica",
+  "description": "AI不要の色彩解析・シミュレーター",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#FDFCFA",
+  "theme_color": "#1C1917",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3566/3566345.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
