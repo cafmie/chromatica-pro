@@ -1,10 +1,14 @@
 
 const CACHE_NAME = 'chromatica-v1';
-// ビルド後は .tsx などのファイルは存在しないため、キャッシュ対象から外します。
-// 基本的なリソースのみをキャッシュし、あとは動的に処理します。
 const ASSETS = [
   './',
   './index.html',
+  './index.tsx',
+  './App.tsx',
+  './types.ts',
+  './constants.ts',
+  './utils/colorMath.ts',
+  './services/analysisService.ts',
   './manifest.json'
 ];
 
@@ -19,14 +23,12 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Only handle GET requests from the same origin
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
     caches.match(event.request).then((response) => {
-      // キャッシュがあれば返し、なければネットワークから取得
-      return response || fetch(event.request).then(fetchRes => {
-        return fetchRes;
-      });
+      return response || fetch(event.request);
     }).catch(() => {
       return fetch(event.request);
     })
