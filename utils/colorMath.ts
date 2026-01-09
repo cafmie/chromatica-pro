@@ -1,3 +1,4 @@
+
 import { RGB } from '../types';
 
 export const hexToRgb = (hex: string): RGB => {
@@ -16,24 +17,6 @@ export const rgbToHex = (rgb: RGB): string => {
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
 };
 
-export const hsvToRgb = (h: number, s: number, v: number): RGB => {
-  let r = 0, g = 0, b = 0;
-  const i = Math.floor(h * 6);
-  const f = h * 6 - i;
-  const p = v * (1 - s);
-  const q = v * (1 - f * s);
-  const t = v * (1 - (1 - f) * s);
-  switch (i % 6) {
-    case 0: r = v; g = t; b = p; break;
-    case 1: r = q; g = v; b = p; break;
-    case 2: r = p; g = v; b = t; break;
-    case 3: r = p; g = q; b = v; break;
-    case 4: r = t; g = p; b = v; break;
-    case 5: r = v; g = p; b = q; break;
-  }
-  return { r: r * 255, g: g * 255, b: b * 255 };
-};
-
 export const blendColors = (base: RGB, pigment: RGB, opacity: number): RGB => {
   return {
     r: base.r * (1 - opacity) + pigment.r * opacity,
@@ -42,20 +25,7 @@ export const blendColors = (base: RGB, pigment: RGB, opacity: number): RGB => {
   };
 };
 
-/**
- * 逆演算: 特定の肌色(base)で目標色(target)を出すために必要な顔料(pigment)を算出
- * opacityは標準的な60% (0.6)をデフォルトとする
- */
-export const calculateRequiredPigment = (base: RGB, target: RGB, opacity: number = 0.6): RGB => {
-  return {
-    r: Math.max(0, Math.min(255, (target.r - base.r * (1 - opacity)) / opacity)),
-    g: Math.max(0, Math.min(255, (target.g - base.g * (1 - opacity)) / opacity)),
-    b: Math.max(0, Math.min(255, (target.b - base.b * (1 - opacity)) / opacity)),
-  };
-};
-
 export const calculateColorDifference = (rgb1: RGB, rgb2: RGB): number => {
-  // 簡易的なユークリッド距離。より正確にはCIEDE2000などがあるが、パフォーマンス重視
   return Math.sqrt(
     Math.pow(rgb1.r - rgb2.r, 2) +
     Math.pow(rgb1.g - rgb2.g, 2) +
@@ -63,8 +33,14 @@ export const calculateColorDifference = (rgb1: RGB, rgb2: RGB): number => {
   );
 };
 
+/**
+ * RGBからアンダートーンを判定する簡易アルゴリズム
+ * 人間の肌色において赤(R)と青(B)の比率を分析
+ */
 export const detectUndertone = (rgb: RGB): 'Warm' | 'Cool' | 'Neutral' => {
   const { r, g, b } = rgb;
+  // 黄み(G)と赤み(R)が強く、青(B)が弱い場合はWarm
+  // 青(B)が相対的に強い場合はCool
   const rbRatio = r / (b || 1);
   if (rbRatio > 1.4) return 'Warm';
   if (rbRatio < 1.1) return 'Cool';
