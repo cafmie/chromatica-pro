@@ -42,7 +42,20 @@ export const blendColors = (base: RGB, pigment: RGB, opacity: number): RGB => {
   };
 };
 
+/**
+ * 逆演算: 特定の肌色(base)で目標色(target)を出すために必要な顔料(pigment)を算出
+ * opacityは標準的な60% (0.6)をデフォルトとする
+ */
+export const calculateRequiredPigment = (base: RGB, target: RGB, opacity: number = 0.6): RGB => {
+  return {
+    r: Math.max(0, Math.min(255, (target.r - base.r * (1 - opacity)) / opacity)),
+    g: Math.max(0, Math.min(255, (target.g - base.g * (1 - opacity)) / opacity)),
+    b: Math.max(0, Math.min(255, (target.b - base.b * (1 - opacity)) / opacity)),
+  };
+};
+
 export const calculateColorDifference = (rgb1: RGB, rgb2: RGB): number => {
+  // 簡易的なユークリッド距離。より正確にはCIEDE2000などがあるが、パフォーマンス重視
   return Math.sqrt(
     Math.pow(rgb1.r - rgb2.r, 2) +
     Math.pow(rgb1.g - rgb2.g, 2) +

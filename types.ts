@@ -15,6 +15,7 @@ export interface AnalysisResult {
 export interface Product {
   id: string;
   name: string;
+  nameJp: string;
   brand: string;
   category: 'eyeshadow' | 'blush' | 'foundation';
   colorHex: string;
