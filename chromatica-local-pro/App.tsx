@@ -101,7 +101,7 @@ const App: React.FC = () => {
   };
 
   const updateCustomColor = (h: number, s: number, v: number) => {
-    setHue(h); setSat(sat); setVal(val);
+    setHue(h); setSat(s); setVal(v);
     setTargetColor(rgbToHex(hsvToRgb(h, s, v)));
   };
 
